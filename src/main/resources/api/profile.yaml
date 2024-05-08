@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  title: Uni Buddy API
+  description: API for managing user profiles in Uni Buddy application
+  version: 1.0.0
+tags:
+  - name: Profile
+paths:
+  /welcome:
+    get:
+      operationId: welcome
+      tags:
+        - Profile
+      summary: Get welcome message
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /profile/create:
+    post:
+      operationId: createProfile
+      tags:
+        - Profile
+      summary: Create a new profile
+      requestBody:
+        $ref: "#/components/requestBodies/ProfileRequestBody"
+      responses:
+        "201":
+          $ref: "#/components/responses/ProfileResponse"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal server error
+  /profile:
+    get:
+      operationId: getProfileByNickname
+      tags:
+        - Profile
+      summary: Get profile by nickname
+      parameters:
+        - in: query
+          name: nickname
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/ProfileResponse"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal server error
+  /profile/{id}:
+    get:
+      operationId: getProfileById
+      tags:
+        - Profile
+      summary: Get profile by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          $ref: "#/components/responses/ProfileResponse"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal server error
+  /profile/update/{id}:
+    put:
+      operationId: updateProfile
+      tags:
+        - Profile
+      summary: Update profile
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        $ref: "#/components/requestBodies/ProfileRequestBody"
+      responses:
+        "200":
+          $ref: "#/components/responses/ProfileResponse"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal server error
+  /profile/delete/{id}:
+    delete:
+      operationId: deleteProfile
+      tags:
+        - Profile
+      summary: Delete profile
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal server error
+components:
+  requestBodies:
+    ProfileRequestBody:
+      description: JSON object for profile request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProfileRequest"
+  responses:
+    ProfileResponse:
+      description: profile response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProfileResponse"
+  schemas:
+    ProfileRequest:
+      $ref: "./request/_index.yaml#/ProfileRequest"
+    ProfileResponse:
+      $ref: "./response/_index.yaml#/ProfileResponse"

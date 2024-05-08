@@ -1,0 +1,28 @@
+ProfileResponse:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    gender:
+      type: string
+    nickname:
+      type: string
+    firstName:
+      type: string
+    lastName:
+      type: string
+    dateOfBirth:
+      type: string
+      format: date
+    email:
+      type: string
+    university:
+      type: string
+    major:
+      type: string
+    phoneNumber:
+      type: string
+    dateOfAdmission:
+      type: string
+      format: date

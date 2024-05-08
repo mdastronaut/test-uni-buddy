@@ -1,8 +1,11 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' 			version '3.2.5'
-	id 'io.spring.dependency-management' 	version '1.1.4'
-	id 'org.liquibase.gradle' 				version '2.2.1'
+	id 'org.springframework.boot' 						version '3.2.5'
+	id 'io.spring.dependency-management' 				version '1.1.4'
+	id 'org.liquibase.gradle' 							version '2.2.1'
+	id 'org.openapi.generator'							version '7.4.0'
+	id 'io.swagger.core.v3.swagger-gradle-plugin' 		version '2.2.21'
+	id "com.rameshkp.openapi-merger-gradle-plugin" 		version '1.0.5'
 }
 
 group = 'poc.uni'
@@ -23,30 +26,79 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	implementation 		'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 		'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 		'org.springframework.boot:spring-boot-starter-security'
+	implementation 		'org.springframework.boot:spring-boot-starter-validation'
+	implementation 		'org.springframework.boot:spring-boot-starter-web'
 
-	liquibaseRuntime 'org.liquibase:liquibase-core'
-	liquibaseRuntime 'info.picocli:picocli:4.6.1'
-	liquibaseRuntime 'org.postgresql:postgresql:42.7.1'
+	implementation 		'org.apache.commons:commons-lang3:3.13.0'
+	implementation 		'org.mapstruct:mapstruct:1.5.5.Final'
+	implementation 		'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
+	implementation 		'io.swagger.core.v3:swagger-annotations:2.2.21'
 
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql'
+	implementation 		'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
+	implementation 		'jakarta.validation:jakarta.validation-api:3.0.2'
+	implementation 		'io.jsonwebtoken:jjwt-api:0.12.5'
+
+	liquibaseRuntime 	'org.liquibase:liquibase-core'
+	liquibaseRuntime 	'info.picocli:picocli:4.6.1'
+	liquibaseRuntime 	'org.postgresql:postgresql:42.7.1'
+
+	runtimeOnly 		'org.postgresql:postgresql'
+	runtimeOnly 		'io.jsonwebtoken:jjwt-impl:0.12.5'
+	runtimeOnly 		'com.rameshkp:openapi-merger-app:1.0.5'
+
+	compileOnly 		'org.projectlombok:lombok'
+	compileOnly 		'org.openapitools:jackson-databind-nullable:0.2.6'
+
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
+
+	testImplementation 	'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 	'org.springframework.security:spring-security-test'
+	testImplementation 	'org.junit.jupiter:junit-jupiter:5.8.1'
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir("$buildDir/generated/openapi/src/main/java")
+			srcDir("$rootDir/src/main/java")
+		}
+	}
+}
+
+def files = [
+		"$rootDir/src/main/resources/api/profile.yaml"
+]
+
+files.each { file ->
+	openApiValidate {
+		inputSpec = file
+	}
+}
+
+openApiMerger {
+	inputDirectory.set(file("${rootDir}/src/main/resources/api/".toString()))
+	output {
+		directory.set(file("${buildDir}/generated/openapi/merged/".toString()))
+		fileName.set("merged-api-spec")
+		fileExtension.set("yaml")
+	}
+	openApi {
+		openApiVersion.set("3.0.1")
+		info {
+			title.set("Open API Merger")
+			description.set("All files merged by open api merger")
+			version.set("${project.version}".toString())
+		}
+	}
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-apply plugin: "org.liquibase.gradle"
 
 liquibase {
 	activities {
@@ -59,3 +111,32 @@ liquibase {
 		}
 	}
 }
+
+openApiGenerate {
+	generatorName = "spring"
+	inputSpec = "$rootDir/src/main/resources/api/profile.yaml"
+	outputDir = file("$buildDir/generated/openapi").toString()
+	apiPackage 		= 'poc.uni.buddy.api'
+	modelPackage 	= 'poc.uni.buddy.model'
+	modelNameSuffix = ""
+	validateSpec 	= true
+	additionalProperties = [
+			useTags: true,
+			jackson: true
+	]
+	configOptions = [
+			dateLibrary: "java8",
+			library: "spring-boot",
+			useSpringBoot3: "true",
+			interfaceOnly: "true",
+			useTags: "true",
+			swaggerDocketConfig : "false"
+	]
+}
+
+bootRun.dependsOn(['update'])
+compileJava.dependsOn(['openApiValidate', 'openApiGenerate', 'mergeOpenApiFiles'])
+tasks.openApiGenerate.dependsOn tasks.openApiValidate
+tasks.mergeOpenApiFiles.dependsOn tasks.openApiGenerate
+
+apply plugin: "org.liquibase.gradle"
