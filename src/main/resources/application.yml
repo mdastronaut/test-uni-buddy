@@ -1,4 +1,12 @@
+#debug: true
+
 spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: unidb
+      username: admin
+      password: 1234
   datasource:
     url: jdbc:postgresql://localhost:5432/test-unibuddy-db
     username: postgres
@@ -9,6 +17,11 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
+
+logging:
+  level:
+    org:
+      hibernate: DEBUG
 
 entity:
   exists: "entity already exists in the database."

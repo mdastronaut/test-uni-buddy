@@ -42,7 +42,6 @@ public class ProfileController implements ProfileApi {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("profile/{id}")
     public ResponseEntity<ProfileResponse> getProfileById(@PathVariable UUID id) {
         return ResponseEntity.ok(profileMapper.mapToProfileResponse(profileService.getProfileById(id)));
     }

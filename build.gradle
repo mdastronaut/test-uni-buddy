@@ -31,6 +31,7 @@ dependencies {
 	implementation 		'org.springframework.boot:spring-boot-starter-security'
 	implementation 		'org.springframework.boot:spring-boot-starter-validation'
 	implementation 		'org.springframework.boot:spring-boot-starter-web'
+	implementation 		'org.springframework.boot:spring-boot-starter-data-mongodb:3.2.5'
 
 	implementation 		'org.apache.commons:commons-lang3:3.13.0'
 	implementation 		'org.mapstruct:mapstruct:1.5.5.Final'
@@ -45,9 +46,11 @@ dependencies {
 	liquibaseRuntime 	'info.picocli:picocli:4.6.1'
 	liquibaseRuntime 	'org.postgresql:postgresql:42.7.1'
 
-	runtimeOnly 		'org.postgresql:postgresql'
+	runtimeOnly 		'io.jsonwebtoken:jjwt-jackson:0.12.5'
 	runtimeOnly 		'io.jsonwebtoken:jjwt-impl:0.12.5'
+	runtimeOnly 		'org.postgresql:postgresql'
 	runtimeOnly 		'com.rameshkp:openapi-merger-app:1.0.5'
+
 
 	compileOnly 		'org.projectlombok:lombok'
 	compileOnly 		'org.openapitools:jackson-databind-nullable:0.2.6'
@@ -66,16 +69,6 @@ sourceSets {
 			srcDir("$buildDir/generated/openapi/src/main/java")
 			srcDir("$rootDir/src/main/java")
 		}
-	}
-}
-
-def files = [
-		"$rootDir/src/main/resources/api/profile.yaml"
-]
-
-files.each { file ->
-	openApiValidate {
-		inputSpec = file
 	}
 }
 
@@ -112,6 +105,16 @@ liquibase {
 	}
 }
 
+def files = [
+		"$rootDir/src/main/resources/api/profile.yaml"
+]
+
+files.each { file ->
+	openApiValidate {
+		inputSpec = file
+	}
+}
+
 openApiGenerate {
 	generatorName = "spring"
 	inputSpec = "$rootDir/src/main/resources/api/profile.yaml"
@@ -131,6 +134,10 @@ openApiGenerate {
 			interfaceOnly: "true",
 			useTags: "true",
 			swaggerDocketConfig : "false"
+	]
+	importMappings = [
+	        "AuthUser": 	"poc.uni.buddy.repository.model.AuthUser",
+			"LoginReqRes": 	"poc.uni.buddy.repository.model.LoginReqRes"
 	]
 }
 

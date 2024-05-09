@@ -13,5 +13,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/backup
 
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+
+    ports:
+      - "127.0.0.1:27017:27017"
+#    environment:
+##      MONGO_INITDB_DATABASE: unidb
+#      MONGO_INITDB_ROOT_USERNAME: root
+#      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+#      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+     - mongodb_data_container:/data/db
 volumes:
   postgres_data:
+  mongodb_data_container:

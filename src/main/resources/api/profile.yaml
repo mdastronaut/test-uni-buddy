@@ -5,42 +5,109 @@ info:
   version: 1.0.0
 tags:
   - name: Profile
+  - name: Auth
 paths:
-  /welcome:
+  /public/welcome:
     get:
       operationId: welcome
       tags:
         - Profile
       summary: Get welcome message
       responses:
-        "200":
+        '200':
           description: OK
           content:
             text/plain:
               schema:
                 type: string
-  /profile/create:
+  /auth/signup:
+    post:
+      summary: Sign Up
+      description: Register a new user.
+      operationId: signUp
+      tags:
+        - Auth
+      requestBody:
+          $ref: '#/components/requestBodies/LoginReqRes'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginReqRes'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '405':
+          description: Method Not Allowed
+        '500':
+          description: Internal server error
+  /auth/signin:
+    post:
+      summary: Sign In
+      description: Authenticate and sign in a user.
+      operationId: signIn
+      tags:
+        - Auth
+      requestBody:
+        $ref: '#/components/requestBodies/LoginReqRes'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginReqRes'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '405':
+          description: Method Not Allowed
+        '500':
+          description: Internal server error
+  /auth/refresh:
+    post:
+      summary: Refresh Token
+      description: Refresh the authentication token.
+      operationId: refreshToken
+      tags:
+        - Auth
+      requestBody:
+        $ref: '#/components/requestBodies/LoginReqRes'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginReqRes'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '405':
+          description: Method Not Allowed
+        '500':
+          description: Internal server error
+  /admin/profile/create:
     post:
       operationId: createProfile
       tags:
         - Profile
       summary: Create a new profile
       requestBody:
-        $ref: "#/components/requestBodies/ProfileRequestBody"
+        $ref: '#/components/requestBodies/ProfileRequestBody'
       responses:
-        "201":
-          $ref: "#/components/responses/ProfileResponse"
-        "400":
+        '201':
+          $ref: '#/components/responses/ProfileResponse'
+        '400':
           description: Bad request
-        "401":
+        '401':
           description: Unauthorized
-        "404":
+        '404':
           description: Not found
-        "405":
+        '405':
           description: Method Not Allowed
-        "500":
+        '500':
           description: Internal server error
-  /profile:
+  /user/profile:
     get:
       operationId: getProfileByNickname
       tags:
@@ -53,19 +120,19 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          $ref: "#/components/responses/ProfileResponse"
-        "400":
+        '200':
+          $ref: '#/components/responses/ProfileResponse'
+        '400':
           description: Bad request
-        "401":
+        '401':
           description: Unauthorized
-        "404":
+        '404':
           description: Not found
-        "405":
+        '405':
           description: Method Not Allowed
-        "500":
+        '500':
           description: Internal server error
-  /profile/{id}:
+  /user/profile/{id}:
     get:
       operationId: getProfileById
       tags:
@@ -79,19 +146,19 @@ paths:
             type: string
             format: uuid
       responses:
-        "200":
-          $ref: "#/components/responses/ProfileResponse"
-        "400":
+        '200':
+          $ref: '#/components/responses/ProfileResponse'
+        '400':
           description: Bad request
-        "401":
+        '401':
           description: Unauthorized
-        "404":
+        '404':
           description: Not found
-        "405":
+        '405':
           description: Method Not Allowed
-        "500":
+        '500':
           description: Internal server error
-  /profile/update/{id}:
+  /admin/profile/update/{id}:
     put:
       operationId: updateProfile
       tags:
@@ -105,21 +172,21 @@ paths:
             type: string
             format: uuid
       requestBody:
-        $ref: "#/components/requestBodies/ProfileRequestBody"
+        $ref: '#/components/requestBodies/ProfileRequestBody'
       responses:
-        "200":
-          $ref: "#/components/responses/ProfileResponse"
-        "400":
+        '200':
+          $ref: '#/components/responses/ProfileResponse'
+        '400':
           description: Bad request
-        "401":
+        '401':
           description: Unauthorized
-        "404":
+        '404':
           description: Not found
-        "405":
+        '405':
           description: Method Not Allowed
-        "500":
+        '500':
           description: Internal server error
-  /profile/delete/{id}:
+  /admin/profile/delete/{id}:
     delete:
       operationId: deleteProfile
       tags:
@@ -133,17 +200,17 @@ paths:
             type: string
             format: uuid
       responses:
-        "204":
+        '204':
           description: No Content
-        "400":
+        '400':
           description: Bad request
-        "401":
+        '401':
           description: Unauthorized
-        "404":
+        '404':
           description: Not found
-        "405":
+        '405':
           description: Method Not Allowed
-        "500":
+        '500':
           description: Internal server error
 components:
   requestBodies:
@@ -153,16 +220,34 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ProfileRequest"
-  responses:
-    ProfileResponse:
-      description: profile response
+            $ref: '#/components/schemas/ProfileRequest'
+    LoginReqRes:
+      description: JSON object for login request/response
+      required: true
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ProfileResponse"
-  schemas:
-    ProfileRequest:
-      $ref: "./request/_index.yaml#/ProfileRequest"
+            $ref: '#/components/schemas/LoginReqRes'
+  responses:
     ProfileResponse:
-      $ref: "./response/_index.yaml#/ProfileResponse"
+      description: JSON object for profile response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProfileResponse'
+    LoginReqRes:
+      description: JSON object for login request/response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginReqRes'
+  schemas:
+    AuthUser:
+      $ref: './login/_index.yaml#/AuthUser'
+    ProfileRequest:
+      $ref: './request/_index.yaml#/ProfileRequest'
+    ProfileResponse:
+      $ref: './response/_index.yaml#/ProfileResponse'
+    LoginReqRes:
+      $ref: './login/_index.yaml#/LoginReqRes'
+

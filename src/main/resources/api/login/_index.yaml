@@ -1,0 +1,4 @@
+AuthUser:
+  type: AuthUser
+LoginReqRes:
+  type: LoginReqRes
