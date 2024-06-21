@@ -1,3 +1,3 @@
 # test-uni-buddy
 
-jet fuel doesn't melt steel beams
+mvp for uni-buddy (under construction)
